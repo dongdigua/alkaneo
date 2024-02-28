@@ -1,5 +1,4 @@
 (require cKanren/miniKanren)
-(require cKanren/neq)
 ;;  caro cdro conso nullo eqo
 ;;  pairo membero rembero appendo
 ;;  flatteno anyo nevero alwayso
@@ -8,6 +7,8 @@
 ;;  *o odd-*o bound-*o =lo <lo <=lo
 ;;  <o <=o /o splito logo exp2
 ;;  repeated-mul expo prnt zeroo
+(require cKanren/neq)
+(require cKanren/tester)
 
 (define (lengtho l out)
     (conde
@@ -20,7 +21,7 @@
 ;; a alkane is a list of substituent pairs
 ;; a substituent is a list of substituent substituent
 ;; C2H6 -> '((() . ()) (() . ()))
-;; CH(CH3)3 ->  '((() . ()) (() . (((() . ())))) (() . ()))
+;; CH(CH3)3 ->  '((() . ()) (() . ((() . ()))) (() . ()))
 (define (alkaneo l main-length avail-carbon)
   (fresh (calc-length)
          (minuso main-length '(1) calc-length)
@@ -35,7 +36,9 @@
            (minuso avail-length '(1) remain-length) ; 当前剩余碳链(不包括自身)长度
            (== `(,sub-alkanes . ,d) l)
            (minuso main-length remain-length pos) ; 当前碳位置
-           (conde                                 ; 当前碳到两端的最小长度
+           ;; 当前碳到两端的最小长度
+           ;; C5: 0 1 2 1 0
+           (conde
             [(<=o pos remain-length) (== rel-length pos)]
             [(<o remain-length pos) (== rel-length remain-length)])
            (sub2-alkaneo sub-alkanes rel-length sub-carbon-count) ; 支链的碳数+1(当前碳)
@@ -51,11 +54,19 @@
          (pluso carbon1 carbon2 carbons)
          (pluso carbons '(1) carbon-count)))
 
-; one layer of recursion mising
+;; 与主链接近的碳在列表的头
 (define (sub-alkaneo l rel-length carbon-count)
-  (fresh (len)
-         (lengtho l len)
-         (== carbon-count len)
-         (<=o len rel-length)           ; 支链长度小于等于当前碳到端长度
-         ))
+  (conde
+   [(nullo l) (nullo carbon-count)]
+   [(fresh (d len new-rel-length sub-alkanes sub-carbon-count d-carbon-count)
+           (== `(,sub-alkanes . ,d) l)
+           (lengtho l len)
+           (minuso len '(1) new-rel-length)
+           (<=o len rel-length)
+           (pluso sub-carbon-count d-carbon-count carbon-count)
+           (sub2-alkaneo sub-alkanes new-rel-length sub-carbon-count)
+           (sub-alkaneo d new-rel-length d-carbon-count)
+           )]))
 
+
+;(test (run1 (q) (alkaneo '((() . ()) (() . ((() . ()))) (() . ())) '(1 1) q)) '((0 0 1)))

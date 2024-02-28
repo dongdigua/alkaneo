@@ -4,13 +4,13 @@ UNFINISHED!
 
 Have you finished The Reasoned Schemer?
 
-#f
+`#f`
 
 ---
 
 That's okay.
 
-#t
+`#t`
 
 ---
 
@@ -22,7 +22,7 @@ It's a program that uses logic to generate alkanes.
 
 What's the value of `(run1 (q) (alkaneo '((() . ())) '(1) q))`
 
-'((1))
+`'((1))`
 
 ---
 
@@ -45,3 +45,25 @@ What's the value of `(run1 (q) (alkaneo q '(0 1) '(0 1)))`
 
 `'(((()) (())))`
 
+---
+
+What's the value of `(run4 (q) (alkaneo q '(0 0 1) '(1 0 1)))`
+
+`'(((()) (() (())) (()) (())) ((()) (()) (() (())) (())) ((()) (()) (((()))) (())) ((()) (((()))) (()) (())))`
+
+---
+
+Why there's four alkanes of length 4 and carbon 5
+
+Because it treats symmetric alkanes as different ones.
+
+---
+
+How to explain the value associated with q in `(run1 (q) (alkaneo q '(1 1) '(1 0 1)))`
+
+It's `'((()) (((())) (())) (()))`.
+The first and third item are just Methyl group.
+The middle can be represented as `(((() . ()) . ()) ((() . ())) . ())`,
+which is two Methyl group connected to a carbon.
+
+---
